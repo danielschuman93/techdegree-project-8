@@ -14,33 +14,33 @@ function asyncHandler(cb){
 }
 
 /* GET books listing. */
-router.get('/books', asyncHandler(async (req, res,) => {
+router.get('/', asyncHandler(async (req, res,) => {
   res.render('index', { books: {}, title: "Library" });
 }));
 
 /* GET create new book form. */
-router.get('/books/new', (req, res,) => {
+router.get('/new', (req, res,) => {
   res.render('new-book', { book: {}, title: 'New Book' });
 });
 
 /* POST new book form. */
-router.post('/', asyncHandler(async(req, res,) => {
+router.post('/new', asyncHandler(async(req, res,) => {
   const book = await Book.create(req.body);
-  res.redirect('/books/' + book.id);
+  res.redirect('/' + book.id);
 }));
 
 /* GET book details form. */
-router.get('/books/:id', (req, res,) => {
+router.get('/:id', (req, res,) => {
   res.render('respond with a resource');
 });
 
 /* POST update book details. */
-router.post('/books/:id', (req, res,) => {
+router.post('/:id', (req, res,) => {
   res.render('respond with a resource');
 });
 
 /* POST delete book. */
-router.post('/books/:id/delete', (req, res,) => {
+router.post('/:id/delete', (req, res,) => {
   res.render('respond with a resource');
 });
 

@@ -8,14 +8,20 @@ function asyncHandler(cb){
     try {
       await cb(req, res, next)
     } catch(error){
-      res.status(500).send(error);
+      if (error.name === 'SequelizeValidationError') {
+        const errors = error.errors.map(err => err.message);
+        console.error('Validation errors: ', errors);
+      } else {
+        throw error;
+      }
     }
   }
 }
 
 /* GET books listing. */
 router.get('/', asyncHandler(async (req, res,) => {
-  res.render('index', { books: {}, title: "Library" });
+  const books = await Book.findAll();
+  res.render('index', { books: books, title: "Library" });
 }));
 
 /* GET create new book form. */
@@ -25,23 +31,46 @@ router.get('/new', (req, res,) => {
 
 /* POST new book form. */
 router.post('/new', asyncHandler(async(req, res,) => {
-  const book = await Book.create(req.body);
-  res.redirect('/' + book.id);
+  if (errors) {
+    res.render('new-book', { book: {}, title: 'New Book' });
+  } else {
+    const book = await Book.create(req.body);
+    res.redirect('/');
+  }
 }));
 
 /* GET book details form. */
-router.get('/:id', (req, res,) => {
-  res.render('respond with a resource');
-});
+router.get('/:id/update', asyncHandler(async (req, res,) => {
+  const book = await Book.findByPk(req.params.id);
+  res.render('update-book', { book: book, title: book.title });
+}));
 
 /* POST update book details. */
-router.post('/:id', (req, res,) => {
-  res.render('respond with a resource');
-});
+router.post('/:id/update', asyncHandler(async (req, res,) => {
+  const book = await Book.findByPk(req.params.id);
+  await book.update(req.body);
+  res.redirect('/');
+}));
 
 /* POST delete book. */
-router.post('/:id/delete', (req, res,) => {
-  res.render('respond with a resource');
+router.post('/:id/delete', asyncHandler(async (req, res,) => {
+  const book = await Book.findByPk(req.params.id);
+  await book.destroy();
+  res.redirect('/');
+}));
+
+// Create custom 404 error object and pass it to `next` function
+router.use((req, res, next) => {
+  const err = new Error('Page Not Found');
+  err.status = 404;
+  next(err);
+});
+
+// Display error page when no valid route is found
+router.use((err, req, res, next) => {
+  res.locals.error = err;
+  res.status(err.status);
+  res.render('page-not-found');
 });
 
 

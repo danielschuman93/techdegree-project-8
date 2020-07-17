@@ -3,6 +3,11 @@ extends layout
 block content
   h1 New Book
   form(action="/books/new", method="post")
+    if errors
+      h2.error Oooops!
+      ul.error
+        li Author is required
+        li Name is required
     p
       label(for='title') Title
       input#title(name='title' type='text')

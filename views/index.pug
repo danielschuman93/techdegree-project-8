@@ -16,7 +16,7 @@ block content
         book
           tr
             td
-              a(href='book_detail.html')= book.title
+              a(href=`/books/${book.id}/update`)= book.title
             td= book.author
             td= book.genre
             td= book.year

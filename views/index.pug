@@ -2,6 +2,11 @@ extends layout
 
 block content
   h1 Books
+  .wrap
+  .search
+    input.searchTerm(type='text' placeholder='Search books...' value= '')
+    button.searchButton(type='submit' onSubmit=handleSearch())
+    i.fa.fa-search
   p
     a.button(href='/books/new') Create New Book
   table

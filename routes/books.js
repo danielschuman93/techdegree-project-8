@@ -29,10 +29,45 @@ function asyncHandler(cb){
   }
 }
 
+/* Search Function */
+function handleSearch(query){
+  asyncHandler(async (req, res) => {
+    const Op = Book.Op;
+    const books = await Book.findAll(
+      {
+        [Op.or]: [
+          {
+            title: {
+              [Op.iLike]: '%' + query + '%'
+            }
+          },
+          {
+            author: {
+              [Op.iLike]: '%' + query + '%'
+            }
+          },
+          {
+            genre: {
+              [Op.iLike]: '%' + query + '%'
+            }
+          },
+          {
+            year: {
+              [Op.iLike]: '%' + query + '%'
+            }
+          },
+        ]
+      }
+    );
+
+    res.render('index', { books: books, title: "Library" });
+  })
+}
+
 /* GET books listing. */
 router.get('/', asyncHandler(async (req, res,) => {
   const books = await Book.findAll();
-  res.render('index', { books: books, title: "Library" });
+  res.render('index', { books: books, title: "Library", handleSearch: handleSearch() });
 }));
 
 /* GET create new book form. */

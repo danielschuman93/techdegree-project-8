@@ -2,15 +2,26 @@ const express = require('express');
 const router = express.Router();
 const Book = require('../models').Book;
 
+/* Function to check for SequelizeValidationError */
+function checkError(error, res){
+  if(error.name === 'SequelizeValidationError'){
+    const errors = error.errors.map(err => err.message);
+    console.error('Validation errors: ', errors);
+    res.render('new-book', { errors: errors });
+    return true;
+  } else {
+    return false;
+  }
+}
+
 /* Handler function to wrap each route. */
 function asyncHandler(cb){
   return async(req, res, next) => {
     try {
       await cb(req, res, next)
     } catch(error){
-      if (error.name === 'SequelizeValidationError') {
-        const errors = error.errors.map(err => err.message);
-        console.error('Validation errors: ', errors);
+      if (checkError(error, res)) {
+        return;
       } else {
         throw error;
       }
@@ -31,12 +42,8 @@ router.get('/new', (req, res,) => {
 
 /* POST new book form. */
 router.post('/new', asyncHandler(async(req, res,) => {
-  if (errors) {
-    res.render('new-book', { book: {}, title: 'New Book' });
-  } else {
     const book = await Book.create(req.body);
     res.redirect('/');
-  }
 }));
 
 /* GET book details form. */

@@ -4,8 +4,8 @@ block content
   h1 Books
   .wrap
   .search
-    input.searchTerm(type='text' placeholder='Search books...' value= '')
-    button.searchButton(type='submit' onSubmit=handleSearch())
+    input.searchTerm(type='text' placeholder='Search books...')
+    //- button.searchButton(type='submit' onSubmit= !{await handleSearch(input.value)})
     i.fa.fa-search
   p
     a.button(href='/books/new') Create New Book

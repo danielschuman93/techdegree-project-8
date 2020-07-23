@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Book = require('../models').Book;
+const { Op } = require('sequelize');
 
 /* Function to check for SequelizeValidationError */
 function checkError(error, res){
@@ -30,44 +31,44 @@ function asyncHandler(cb){
 }
 
 /* Search Function */
-function handleSearch(query){
-  asyncHandler(async (req, res) => {
-    const Op = Book.Op;
-    const books = await Book.findAll(
-      {
-        [Op.or]: [
-          {
-            title: {
-              [Op.iLike]: '%' + query + '%'
-            }
-          },
-          {
-            author: {
-              [Op.iLike]: '%' + query + '%'
-            }
-          },
-          {
-            genre: {
-              [Op.iLike]: '%' + query + '%'
-            }
-          },
-          {
-            year: {
-              [Op.iLike]: '%' + query + '%'
-            }
-          },
-        ]
-      }
-    );
+async function handleSearch(query){
 
-    res.render('index', { books: books, title: "Library" });
-  })
+  const books = Book.findAll({
+    where: {
+      [Op.or]: [
+        {
+          title: {
+            [Op.iLike]: '%' + query + '%'
+          }
+        },
+        {
+          author: {
+            [Op.iLike]: '%' + query + '%'
+          }
+        },
+        {
+          genre: {
+            [Op.iLike]: '%' + query + '%'
+          }
+        },
+        {
+          year: {
+            [Op.iLike]: '%' + query + '%'
+          }
+        },
+      ]
+    }
+  });
+
+  return books;
 }
 
 /* GET books listing. */
 router.get('/', asyncHandler(async (req, res,) => {
-  const books = await Book.findAll();
-  res.render('index', { books: books, title: "Library", handleSearch: handleSearch() });
+  // const books = await Book.findAll();
+  // res.render('index', { books: books, title: "Library", handleSearch: handleSearch });
+  const results = await handleSearch('harry');
+  res.send(results);
 }));
 
 /* GET create new book form. */

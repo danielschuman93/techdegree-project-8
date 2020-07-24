@@ -32,44 +32,51 @@ function asyncHandler(cb){
 
 /* Search Function */
 async function handleSearch(query){
-
-  const books = Book.findAll({
-    where: {
-      [Op.or]: [
-        {
-          title: {
-            [Op.iLike]: '%' + query + '%'
-          }
-        },
-        {
-          author: {
-            [Op.iLike]: '%' + query + '%'
-          }
-        },
-        {
-          genre: {
-            [Op.iLike]: '%' + query + '%'
-          }
-        },
-        {
-          year: {
-            [Op.iLike]: '%' + query + '%'
-          }
-        },
-      ]
-    }
-  });
-
-  return books;
+  try {
+    const books = Book.findAll({
+      where: {
+        [Op.or]: [
+          {
+            title: {
+              [Op.like]: '%' + query + '%'
+            }
+          },
+          {
+            author: {
+              [Op.like]: '%' + query + '%'
+            }
+          },
+          {
+            genre: {
+              [Op.like]: '%' + query + '%'
+            }
+          },
+          {
+            year: {
+              [Op.like]: '%' + query + '%'
+            }
+          },
+        ]
+      }
+    });
+    return books;
+  } catch (error) {
+    throw error;
+  }
 }
 
 /* GET books listing. */
 router.get('/', asyncHandler(async (req, res,) => {
-  // const books = await Book.findAll();
-  // res.render('index', { books: books, title: "Library", handleSearch: handleSearch });
-  const results = await handleSearch('harry');
-  res.send(results);
+  const books = await Book.findAll();
+  res.render('index', { books: books, title: "Library" });
 }));
+
+/* SEARCH route */
+router.get('/search', (req, res) => {
+  console.log(req.body);
+  // const results = handleSearch(req.body.value);
+  // res.render('index', { books: results, title: "Library" });
+});
 
 /* GET create new book form. */
 router.get('/new', (req, res,) => {

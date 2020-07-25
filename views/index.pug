@@ -2,7 +2,7 @@ extends layout
 
 block content
   h1 Books
-  form(action="/books/search" method="get")
+  form(action="/books/search" method="post")
     .search
       input.searchTerm(type='text' name="query" placeholder='Search books...')
       button.searchButton(type='submit')
@@ -25,3 +25,5 @@ block content
             td= book.author
             td= book.genre
             td= book.year
+
+//- include _paginate

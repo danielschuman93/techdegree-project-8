@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Book = require('../models').Book;
 const { Op } = require('sequelize');
+const paginate = require('express-paginate');
 
 /* Function to check for SequelizeValidationError */
 function checkError(error, res){
@@ -65,18 +66,30 @@ async function handleSearch(query){
   }
 }
 
+
+router.use(paginate.middleware(10, 10));
+
+
 /* GET books listing. */
 router.get('/', asyncHandler(async (req, res,) => {
-  const books = await Book.findAll();
-  res.render('index', { books: books, title: "Library" });
+  const books = await Book.findAndCountAll({limit: req.query.limit, offset: req.skip});
+  const itemCount = books.count;
+  const pageCount = Math.ceil(itemCount / req.query.limit);
+  res.render('index', {
+    books: books.rows,
+    title: "Library",
+    itemCount,
+    pageCount,
+    pages: paginate.getArrayPages(req)(3, pageCount, req.query.page),
+  });
 }));
 
 /* SEARCH route */
-router.get('/search', (req, res) => {
-  console.log(req.body);
-  // const results = handleSearch(req.body.value);
-  // res.render('index', { books: results, title: "Library" });
-});
+router.post('/search', asyncHandler(async (req, res) => {
+  console.log(req.body.query);
+  const results = await handleSearch(req.body.query);
+  res.render('index', { books: results, title: "Library" });
+}));
 
 /* GET create new book form. */
 router.get('/new', (req, res,) => {

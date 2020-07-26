@@ -32,9 +32,11 @@ function asyncHandler(cb){
 }
 
 /* Search Function */
-async function handleSearch(query){
+async function handleSearch(query, limit, offset){
   try {
-    const books = Book.findAll({
+    const books = Book.findAndCountAll({
+      limit: limit,
+      offset: offset,
       where: {
         [Op.or]: [
           {
@@ -80,15 +82,22 @@ router.get('/', asyncHandler(async (req, res,) => {
     title: "Library",
     itemCount,
     pageCount,
-    pages: paginate.getArrayPages(req)(3, pageCount, req.query.page),
+    pages: paginate.getArrayPages(req)(3, pageCount, req.query.page)
   });
 }));
 
 /* SEARCH route */
 router.post('/search', asyncHandler(async (req, res) => {
-  console.log(req.body.query);
-  const results = await handleSearch(req.body.query);
-  res.render('index', { books: results, title: "Library" });
+  const books = await handleSearch(req.body.query, req.query.limit, req.skip);
+  const itemCount = books.count;
+  const pageCount = Math.ceil(itemCount / req.query.limit);
+  res.render('index', {
+    books: books.rows,
+    title: "Library",
+    itemCount,
+    pageCount,
+    pages: paginate.getArrayPages(req)(3, pageCount, req.query.page)
+  });
 }));
 
 /* GET create new book form. */

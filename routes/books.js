@@ -87,8 +87,8 @@ router.get('/', asyncHandler(async (req, res,) => {
 }));
 
 /* SEARCH route */
-router.get('/search/:query', asyncHandler(async (req, res) => {
-  const query = req.params.query;
+router.get('/search', asyncHandler(async (req, res) => {
+  const query = req.query.query;
   const books = await handleSearch(query, req.query.limit, req.skip);
   const itemCount = books.count;
   const pageCount = Math.ceil(itemCount / req.query.limit);

@@ -87,13 +87,15 @@ router.get('/', asyncHandler(async (req, res,) => {
 }));
 
 /* SEARCH route */
-router.post('/search', asyncHandler(async (req, res) => {
-  const books = await handleSearch(req.body.query, req.query.limit, req.skip);
+router.get('/search/:query', asyncHandler(async (req, res) => {
+  const query = req.params.query;
+  const books = await handleSearch(query, req.query.limit, req.skip);
   const itemCount = books.count;
   const pageCount = Math.ceil(itemCount / req.query.limit);
   res.render('index', {
     books: books.rows,
     title: "Library",
+    query,
     itemCount,
     pageCount,
     pages: paginate.getArrayPages(req)(3, pageCount, req.query.page)

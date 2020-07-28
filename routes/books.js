@@ -25,7 +25,7 @@ function asyncHandler(cb){
       if (checkError(error, res)) {
         return;
       } else {
-        throw error;
+        next();
       }
     }
   }

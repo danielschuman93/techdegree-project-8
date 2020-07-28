@@ -68,7 +68,7 @@ async function handleSearch(query, limit, offset){
   }
 }
 
-
+// Limit searches to 10 results
 router.use(paginate.middleware(10, 10));
 
 
@@ -114,13 +114,13 @@ router.post('/new', asyncHandler(async(req, res,) => {
 }));
 
 /* GET book details form. */
-router.get('/:id/update', asyncHandler(async (req, res,) => {
+router.get('/:id', asyncHandler(async (req, res,) => {
   const book = await Book.findByPk(req.params.id);
   res.render('update-book', { book: book, title: book.title });
 }));
 
 /* POST update book details. */
-router.post('/:id/update', asyncHandler(async (req, res,) => {
+router.post('/:id', asyncHandler(async (req, res,) => {
   const book = await Book.findByPk(req.params.id);
   await book.update(req.body);
   res.redirect('/');

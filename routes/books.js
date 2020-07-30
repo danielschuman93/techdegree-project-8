@@ -5,11 +5,11 @@ const { Op } = require('sequelize');
 const paginate = require('express-paginate');
 
 /* Function to check for SequelizeValidationError */
-function checkError(error, res){
+function checkError(error, req, res){
   if(error.name === 'SequelizeValidationError'){
     const errors = error.errors.map(err => err.message);
     console.error('Validation errors: ', errors);
-    res.render('new-book', { errors: errors });
+    res.render('new-book', { book: req.body, errors: errors });
     return true;
   } else {
     return false;
@@ -22,10 +22,10 @@ function asyncHandler(cb){
     try {
       await cb(req, res, next)
     } catch(error){
-      if (checkError(error, res)) {
+      if (checkError(error, req, res)) {
         return;
       } else {
-        next();
+        throw error;
       }
     }
   }
@@ -114,9 +114,15 @@ router.post('/new', asyncHandler(async(req, res,) => {
 }));
 
 /* GET book details form. */
-router.get('/:id', asyncHandler(async (req, res,) => {
+router.get('/:id', asyncHandler(async (req, res, next) => {
   const book = await Book.findByPk(req.params.id);
-  res.render('update-book', { book: book, title: book.title });
+  if (book !== null){
+    res.render('update-book', { book: book, title: book.title });
+  } else {
+    const err = new Error();
+    err.message = 'Sorry! The book id you are requesting does not exist.'
+    next(err);
+  }
 }));
 
 /* POST update book details. */
@@ -132,20 +138,6 @@ router.post('/:id/delete', asyncHandler(async (req, res,) => {
   await book.destroy();
   res.redirect('/');
 }));
-
-// Create custom 404 error object and pass it to `next` function
-router.use((req, res, next) => {
-  const err = new Error('Page Not Found');
-  err.status = 404;
-  next(err);
-});
-
-// Display error page when no valid route is found
-router.use((err, req, res, next) => {
-  res.locals.error = err;
-  res.status(err.status);
-  res.render('page-not-found');
-});
 
 
 module.exports = router;

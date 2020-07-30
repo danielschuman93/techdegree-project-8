@@ -2,4 +2,7 @@ extends layout
 
 block content
   h1 Server Error
-  p Sorry! There was an unexpected error on the server.
+  p #{err.message}
+  br
+  p
+    a.button(href='/') Home
